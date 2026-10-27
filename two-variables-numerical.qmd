@@ -1,0 +1,133 @@
+---
+title: "Two Variables: Both Quantitative"
+author: Orville D. Hombrebueno
+date: today
+format:
+  html:
+    embed-resources: true
+editor: visual
+toc: true
+code-link: true
+code-fold: true
+cache: true
+---
+
+# The Data
+
+```{r}
+#| label: preliminaries
+#| warning: false
+#| message: false
+
+# install packages: install.packages("package")
+# load packages
+library(tidyverse) 
+library(knitr)
+library(gtsummary)
+library(ggstatsplot)
+library(downlit)
+library(broom)
+
+# load data
+data(mtcars)
+```
+
+## Motor Trend Car Road Tests
+
+The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+A data frame with 32 observations on 11 (numeric) variables.
+
+-   `mpg` Miles/(US) gallon
+
+-   `cyl` Number of cylinders
+
+-   `disp` Displacement (cu.in.)
+
+-   `hp` Gross horsepower
+
+-   `drat` Rear axle ratio
+
+-   `wt` Weight (1000 lbs)
+
+-   `qsec` 1/4 mile time
+
+-   `vs` Engine (0 = V-shaped, 1 = straight)
+
+-   `am` Transmission (0 = automatic, 1 = manual)
+
+-   `gear` Number of forward gears
+
+-   `carb` Number of carburetors
+
+The first 6 rows of the data set are shown in @tbl-mtcars
+
+```{r}
+#| label: tbl-mtcars
+#| warning: false
+#| message: false
+#| error: false
+#| tbl-cap: "The first 6 observations of the data set."
+
+mtcars |> # call the data
+  head() |> # get the first six rows of the data
+  kable() # create a table
+```
+
+## Descriptive Statistics
+
+The mean, standard deviation, minimum, and maximum of `hp` and `mpg` in the `mtcars` data set are shown in @tbl-summary. There is a total of 32 observations.
+
+```{r}
+#| label: tbl-summary
+#| tbl-cap: "Summary statistics of the data set."
+#| message: false
+
+mtcars |> # call the data
+  tbl_summary( # create a table
+    include = c(mpg, hp), # select variables
+    statistic = all_continuous() ~ "{mean} ± {sd} ({min} - {max})", # descriptive statistics
+    digits = all_continuous() ~ 2 # no. of digits (rounding)
+  )
+```
+
+# Hypothesis Testing
+
+## Research Question
+
+Is there a significant relationship between gross horsepower and miles/(US) gallon?
+
+## Hypothesis and Test Statistics
+
+-   $H_0:\rho=0$; there is no linear relationship between gross horsepower and miles/(US) gallon.
+
+-   $H_a:\rho\ne0$; there is a linear relationship between gross horsepower and miles/(US) gallon.
+
+-   Significance level, $\alpha=5\%$.
+
+-   **Pearson correlation**
+
+-   $n>30$; large sample.
+
+## Results and Interpretation
+
+The scatter plot and test statistics is shown on @fig-test.
+
+```{r}
+#| label: fig-test
+#| fig-cap: Scatter plot and test statistics.
+#| fig-height: 3
+#| warning: false
+#| error: false
+#| message: false
+
+ggscatterstats(
+  mtcars, hp, mpg,
+  xlab = "Gross Horsepower",
+  ylab = "Miles/(US) Gallon",
+  type = "parametric"
+) +
+  labs(caption = NULL) # remove caption
+```
+
+Based on the scatter plot and the *p*-value being less than 5% (*p*-value = .001), we reject the null hypothesis. There is strong evidence of a linear relationship between gross horsepower and miles/(US) gallon. The correlation ($\rho=-0.78$) suggests a moderate negative relationship between the two variables. Increased gross horsepower is moderately associated with decreased miles/(US) gallon.

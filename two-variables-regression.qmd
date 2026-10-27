@@ -1,0 +1,129 @@
+---
+title: "Two Variables: Linear Regression"
+author: Orville D. Hombrebueno
+date: today
+format:
+  html:
+    embed-resources: true
+editor: visual
+toc: true
+code-link: true
+code-fold: true
+cache: true
+---
+
+# The Data
+
+```{r}
+#| label: preliminaries
+#| warning: false
+#| message: false
+
+# install packages: install.packages("package")
+# load packages
+library(tidyverse) 
+library(knitr)
+library(gtsummary)
+library(ggstatsplot)
+library(downlit)
+library(broom)
+library(car)
+library(moderndive)
+library(ggpubr)
+
+# load data
+data(mtcars)
+```
+
+## Motor Trend Car Road Tests
+
+The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+A data frame with 32 observations on 11 (numeric) variables.
+
+-   `mpg` Miles/(US) gallon
+
+-   `cyl` Number of cylinders
+
+-   `disp` Displacement (cu.in.)
+
+-   `hp` Gross horsepower
+
+-   `drat` Rear axle ratio
+
+-   `wt` Weight (1000 lbs)
+
+-   `qsec` 1/4 mile time
+
+-   `vs` Engine (0 = V-shaped, 1 = straight)
+
+-   `am` Transmission (0 = automatic, 1 = manual)
+
+-   `gear` Number of forward gears
+
+-   `carb` Number of carburetors
+
+The first 6 rows of the data set are shown in @tbl-mtcars
+
+```{r}
+#| label: tbl-mtcars
+#| warning: false
+#| message: false
+#| error: false
+#| tbl-cap: "The first 6 observations of the data set."
+
+mtcars |> # call the data
+  head() |> # get the first six rows of the data
+  kable() # create a table
+```
+
+## Descriptive Statistics
+
+The mean, standard deviation, minimum, and maximum of `mpg` and `wt` are shown in @tbl-summary. There is a total of 32 observations.
+
+```{r}
+#| label: tbl-summary
+#| tbl-cap: "Summary statistics."
+#| message: false
+
+mtcars |> # call the data
+  tbl_summary( # create a table
+    include = c(mpg, wt), # select variables
+    statistic = all_continuous() ~ "{mean} ± {sd} ({min} - {max})", # descriptive statistics
+    digits = all_continuous() ~ 2 # no. of digits (rounding)
+  )
+```
+
+# Linear Regression
+
+A linear regression model was used to approximate the relationship between miles/(US) gallon and Weight (1000 lbs). The response variable is `mpg` and the explanatory variable is `wt`. The model summary is shown in @tbl-regression.
+
+```{r}
+#| label: tbl-regression
+#| tbl-cap: Summary of least squares fit for the `mpg` and `wt`.
+
+model <- lm(mpg ~ wt, data = mtcars)
+
+get_regression_table(model) |>
+  kable()
+```
+
+With the *p*-values less than 5%, there is strong evidence that the estimates are significantly different from 0. Weight (1000lb) significantly predicts miles/(US) gallon. For each additional weight (1000lb), the model predicts a decrease of 5.344 miles/(US) gallon. @fig-plot shows the plot of `mpg` vs `wt` and the regression line with 95% confidence interval. It also shows the linear model and the coefficient of determination, $R^2$. About 75% of the variability in miles/(US) gallon is explained by weight (1000lb) in the model. This also suggests a strong negative linear association between the variables.
+
+```{r}
+#| label: fig-plot
+#| fig-cap: Weight and Miles/(US) Gallon
+#| fig-height: 3
+#| message: false
+
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point(color = "blue", size = 2) +  # Add scatter points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  stat_regline_equation(aes(label = after_stat(eq.label)), label.x = 3) + # Regression equation
+  stat_cor(aes(label = after_stat(rr.label)), label.x = 3, label.y = 30) + # R²
+  labs(
+    x = "Weight (1000 lbs)",
+    y = "Miles/(US) Gallon"
+  ) +
+  theme_minimal()  
+```
