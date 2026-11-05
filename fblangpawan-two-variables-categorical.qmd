@@ -28,7 +28,9 @@ library(downlit)
 library(broom)
 
 # load the data
-titanic <- ggstatsplot::Titanic_full |>
+Data <- read_csv(here("Data"," sample-data.csv"))
+
+ggstatsplot::Titanic_full |>
   mutate(
     Class = factor(Class)
   )
@@ -38,15 +40,15 @@ titanic <- ggstatsplot::Titanic_full |>
 
 The `Titanic_full` data set of the [{ggstatsplot}]{style="font-family:monospace;"} package is a data frame with 2201 rows and 5 variables.
 
--   `id` Dummy identity number for each person.
+- `id` Dummy identity number for each person.
 
--   `Class` 1st, 2nd, 3rd, Crew.
+- `Class` 1st, 2nd, 3rd, Crew.
 
--   `Sex` Male, Female.
+- `Sex` Male, Female.
 
--   `Age` Child, Adult.
+- `Age` Child, Adult.
 
--   `Survived` No, Yes.
+- `Survived` No, Yes.
 
 This data set provides information on the fate of passengers on the fatal maiden voyage of the ocean liner Titanic, summarized according to economic status (class), sex, age and survival.
 
@@ -87,17 +89,17 @@ Does a passenger's sex affect their survival status?
 
 ## Hypothesis and Test Statistics
 
--   $H_0:p_{Survived}-p_{Sex}=0$; passenger's sex does not affect their survival status.
+- $H_0:p_{Survived}-p_{Sex}=0$; passenger's sex does not affect their survival status.
 
--   $H_a:p_{Survived}-p_{Sex}\ne0$; passenger's sex affects their survival status.
+- $H_a:p_{Survived}-p_{Sex}\ne0$; passenger's sex affects their survival status.
 
--   Significance level, $\alpha=5\%$.
+- Significance level, $\alpha=5\%$.
 
--   **Pearson's** $\chi^2$-test of independence
+- **Pearson's** $\chi^2$-test of independence
 
--   Independence.
+- Independence.
 
--   Expected counts: all expected counts are $\ge5$ (see @tbl-expected).
+- Expected counts: all expected counts are $\ge5$ (see @tbl-expected).
 
 ```{r}
 #| label: tbl-expected
