@@ -1,6 +1,6 @@
 ---
 title: "Two Variables: Qualitative"
-author: Orville D. Hombrebueno
+author: Freda B. Langpawan  
 date: today
 format:
   html:
@@ -26,87 +26,106 @@ library(gtsummary)
 library(ggstatsplot)
 library(downlit)
 library(broom)
+library(here)
+```
+
+
+```{r}
+#| label: data
+#| warning: false
+#| message: false
 
 # load the data
-Data <- read_csv(here("Data"," sample-data.csv"))
+df <- read_csv(here("Data","my_dataset.csv"))
 
-ggstatsplot::Titanic_full |>
+df <- df |>
   mutate(
-    Class = factor(Class)
+    Bed= factor(
+      Bed, 
+      levels = c("Before 8:00 pm", "9:00-11:00 pm", "12:00-1:00 am", "2:00 am-later"), 
+      ordered = TRUE
+    )
+  )|>
+  select(
+    Bed,
+    `Diff Concentration`,
   )
 ```
 
-## The Titanic Data Set
 
-The `Titanic_full` data set of the [{ggstatsplot}]{style="font-family:monospace;"} package is a data frame with 2201 rows and 5 variables.
+## Sleep Survey Data Set
 
-- `id` Dummy identity number for each person.
 
-- `Class` 1st, 2nd, 3rd, Crew.
+The `Sleep Survey` data set contains information from 68 student respondents.It focuses on the relationships between students' usual bedtime and their difficulty in concentrating during class.
+The data consist of two qualitative variables.
 
-- `Sex` Male, Female.
+- `bed` before 8, 9:00-11:00, 12:00-1:00, 2 am or later 
 
-- `Age` Child, Adult.
+- `Diff Concentration` yes, no.
 
-- `Survived` No, Yes.
+This data set helps us understand whether students'usual bedtime is associated iwth their ability in concentrating in class.
 
-This data set provides information on the fate of passengers on the fatal maiden voyage of the ocean liner Titanic, summarized according to economic status (class), sex, age and survival.
-
-The first 6 rows of the titanic data set are shown in @tbl-titanic.
+The first 6 rows of the data set are shown in @tbl-concentration.
 
 ```{r}
-#| label: tbl-titanic
+#| label: tbl-concentration
 #| warning: false
 #| message: false
 #| tbl-cap: "The first 6 observations of the data set."
 
-titanic |>
+df|>
   head() |> # getting the first six rows of the data
-  kable() # creating a table
+  kable(col.names = c("Bedtime", "Difficulty in Concentration")) # creating a table
 ```
 
 ## Descriptive Statistics
 
-The frequency distribution of `Survived` when grouped according to `Sex` is shown in @tbl-summary. Most of the passengers are male. The majority of female passengers survived, whereas the majority of male passengers did not. Nonetheless, the number of survived passengers for both female and male are close, that is 344 and 367 respectively.
+The frequency distribution summarizes the students' usual bedtime and difficulty in concentrating during class. It shows how bedtime patterns differ among the 68 respondents and how many students experience concentration difficulties.
 
 ```{r}
 #| label: tbl-summary
-#| tbl-cap: "Summary statistics of `Survived` when grouped according to `Sex`."
+#| tbl-cap: "Summary statistics of `Bed` when grouped according to `Diff concentration`."
 #| message: false
-
-titanic |> 
-  tbl_summary(
-    by = Sex,
-    include = Survived
+ 
+df |> 
+  tbl_cross(
+    row = `Diff Concentration`, 
+    col = Bed,
+    percent = "column",
+    margin = c("row", "column"), 
+    label = list(
+     Bed ~ "Bedtime", 
+     `Diff Concentration` ~ "Difficulty in Concentration"
+     )
   )
 ```
 
 # Hypothesis Testing
-
 ## Research Question
 
-Does a passenger's sex affect their survival status?
+Does usual bedtime have a significant relationship with students' concentration difficulties?
 
 ## Hypothesis and Test Statistics
 
-- $H_0:p_{Survived}-p_{Sex}=0$; passenger's sex does not affect their survival status.
+- $H_0:p_{Diff Concentration}-p_{Bed}=0$; bedtime is not associated with concentration difficulty.
 
-- $H_a:p_{Survived}-p_{Sex}\ne0$; passenger's sex affects their survival status.
+- $H_a:p_{Diff Concentration}-p_{Bed}\ne0$; bedtime is associated with concentration difficulty.
 
-- Significance level, $\alpha=5\%$.
+- Significance level, $\alpha=5\%\,\text{or p-value}\,\le\.05$.
 
 - **Pearson's** $\chi^2$-test of independence
 
 - Independence.
 
-- Expected counts: all expected counts are $\ge5$ (see @tbl-expected).
+- Expected counts: The expected count shows the estimated number of respondents in each category if there is no significant relationship between the two variables. Both groups (Yes and No) have the same expected counts: 2, 19.5, 8, and 0.5, respectively. This suggests an equal distribution under the assumption that the variables are independent. $\ge5$ (see @tbl-expected).
 
 ```{r}
 #| label: tbl-expected
 #| tbl-cap: Expected counts.
+#| warning: false 
 
 # Create contingency table
-observed <- table(titanic$Survived, titanic$Sex)
+observed <- table(df$`Diff Concentration`, df$Bed)
 
 # Perform chi-squared test
 chi_test <- chisq.test(observed)
@@ -135,12 +154,12 @@ The bar chart and test statistics are shown on @fig-test.
 #| fig-height: 3
 
 ggbarstats(
-  data = titanic,
-  x = Survived,
-  y = Sex,
+  data = df,
+  x = Bed,
+  y = `Diff Concentration`,
   bf.message = FALSE,
-  legend.title = "Survived?"
+  legend.title = "Bed?"
 )
 ```
 
-Based on the bar chart and the *p*-value being lesser than 5% (*p*-value = .001), we reject the null hypothesis. There is a strong evidence that passenger's sex affects their survival status. Additionally, for both females and males, the survival rates were significantly different than 50% as indicated by a goodness of fit test for each gender.
+Based on the bar chart and the *p*-value being greater than 5% (*p*-value = .11), we fail to reject the null hypothesis. There is strong evidence that bedtime is not associated with concentration difficulty. Additionally, both those who experience difficulty concentrating (67%) and those who do not (63%), usually go to bed between 9:00 PM and 11:00 PM. Meanwhile, 33% of those without difficulty concentrating and 20% of those with difficulty concentrating go to bed between 12:00 AM and 1:00 AM. Only 13% of respondents who experience difficulty concentrating go to bed before 8:00 PM, while 3% of those without difficulty concentrating sleep at 2:00 AM or later.
