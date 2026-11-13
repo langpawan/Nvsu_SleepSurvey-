@@ -1,6 +1,6 @@
 ---
 title: "Two Variables: Quantitative and Qualitative"
-author: Orville D. Hombrebueno
+author: Freda B. Langpawan
 date: today
 format:
   html:
@@ -21,47 +21,42 @@ cache: true
 
 # install packages: install.packages("package")
 # load packages
-library(tidyverse) 
+library(tidyverse)
 library(knitr)
 library(gtsummary)
 library(ggstatsplot)
 library(downlit)
 library(broom)
 library(car)
+library(here)
 
-# load data
-data(mtcars)
+# load the data
+df <- read_csv(here("Data", "my_dataset.csv"))
+
+df <- df |>
+  mutate(
+    SleepDur = factor(
+      `Sleep Dur`,
+      levels = c("Less than 4 hours", "4-5 hours", "6-7 hours", "8-9 hours", "More than 9 hours"),
+      ordered = TRUE
+    )
+  ) |>
+  select(
+    SleepDur,
+    `DailyPerf`
+  )
+
 ```
 
-## Motor Trend Car Road Tests
+## Sleep-Productivity Test
 
-The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+The dataset consists of 68 respondents from Nueva Vizcaya State University (NVSU).Two variables are considered which are Sleep Duration and Daily Productivity. Sleep duration refers to the number of hours students usually sleep at night, grouped into different categories, while daily productivity measures how students rate their productivity on a scale of 1 to 10.
 
-A data frame with 32 observations on 11 (numeric) variables.
+- `SleepDur` less than 4 hours, 4-5 hours, 6-7 hours, 8-9 hours
 
--   `mpg` Miles/(US) gallon
+- `DailyPerf` 1,2,3,4,5,6,7,8,9,10
 
--   `cyl` Number of cylinders
-
--   `disp` Displacement (cu.in.)
-
--   `hp` Gross horsepower
-
--   `drat` Rear axle ratio
-
--   `wt` Weight (1000 lbs)
-
--   `qsec` 1/4 mile time
-
--   `vs` Engine (0 = V-shaped, 1 = straight)
-
--   `am` Transmission (0 = automatic, 1 = manual)
-
--   `gear` Number of forward gears
-
--   `carb` Number of carburetors
-
-The first 6 rows of the data set are shown in @tbl-mtcars
+The first 6 rows of the data set are shown in @tbl-Productivity
 
 ```{r}
 #| label: tbl-mtcars
@@ -70,30 +65,24 @@ The first 6 rows of the data set are shown in @tbl-mtcars
 #| error: false
 #| tbl-cap: "The first 6 observations of the data set."
 
-mtcars |> # call the data
+df|> # call the data
   head() |> # get the first six rows of the data
-  kable() # create a table
+  kable(col.names= c("Sleep Duration", "Daily Productivity")) # create a table
 ```
 
 ## Descriptive Statistics
 
-The mean, standard deviation, minimum, and maximum of `mpg` when grouped according to `am` are shown in @tbl-summary. There is a total of 32 observations.
+The mean, standard deviation, minimum, and maximum of `DailyPerf` when grouped according to `SleepDur`are shown in @tbl-summary. There is a total of 32 observations.
 
 ```{r}
 #| label: tbl-summary
-#| tbl-cap: "Summary statistics."
+#| tbl-cap: "Summary statistics of DailyPerf when grouped according to SleepDur."
 #| message: false
 
-mtcars |> # call the data
-  mutate(
-    am = factor(
-      am, levels = c(0, 1),
-      labels = c("Automatic", "Manual")
-    )
-  ) |>
+df|> # call the data
   tbl_summary( # create a table
-    by = am, # grouping
-    include = c(mpg, am), # select variables
+    by = SleepDur, # grouping
+    include = DailyPerf, # select variables
     statistic = all_continuous() ~ "{mean} ± {sd} ({min} - {max})", # descriptive statistics
     digits = all_continuous() ~ 2 # no. of digits (rounding)
   )
@@ -103,65 +92,51 @@ mtcars |> # call the data
 
 ### Research Question
 
-Is there a significant difference in miles/(US) gallon when grouped according to transmission?
+Is there a significant difference in Daily Productivity when grouped according to Sleep Duration?
 
 ### Hypothesis and Test Statistics
 
--   $H_0:\mu_A=\mu_M$; the mean miles/(US) gallon is the same when grouped according to transmission.
+- $H_o:\mu_1=\mu_2=\mu_3=\mu_4=\mu_5$ ; the mean of daily performance is the same across all sleep duration groups.
 
--   $H_a:\mu_A\ne\mu_M$; the mean miles/(US) gallon is different when grouped according to transmission.
+- $H_a :$ at least one group mean is different.
 
--   Significance level, $\alpha=5\%$.
+- Significance level, $\alpha=5\%$.
 
--   **Welch's t-test for 2 independent samples**
+- **Welch's ANOVA**
 
--   Unknown and unequal variance (see @tbl-levene).
+- Unknown and unequal variance (see @tbl-levene).
 
 ```{r}
 #| label: tbl-levene
 #| tbl-cap: Levene's test for homogeneity of variance.
 
-mtcars_levene <- mtcars |> # call the data
+df_levene <- df |> # call the data
   mutate(
-    am = factor(
-      am, levels = c(0, 1),
-      labels = c("Automatic", "Manual")
+  SleepDur= factor(
+    SleepDur), 
+    DailyPerf= as.numeric(DailyPerf),
     )
-  )
+  
 
-leveneTest(mpg ~ am, data = mtcars_levene, center =  mean) |>
+leveneTest(DailyPerf ~ SleepDur, data = df_levene, center = mean) |>
   tidy() |>
   mutate(across(where(is.numeric), ~ round(.x, 2))) |>
   kable()
 ```
 
--   Both samples follow a normal distribution (see @tbl-shapiro).
+- All groups follow a normal distribution (see @tbl-shapiro).
 
 ```{r}
 #| label: tbl-shapiro
 #| tbl-cap: Shapiro-Wilk normality test.
 
-mtcars_shapiro_m <- mtcars_levene |>
-  filter(am == "Manual") |>
-  select(mpg)
-
-shapiro_m <- shapiro.test(mtcars_shapiro_m$mpg) |>
-  tidy() |>
-  mutate(across(where(is.numeric), ~ round(.x, 2)))
-
-mtcars_shapiro_a <- mtcars_levene |>
-  filter(am == "Automatic") |>
-  select(mpg)
-
-shapiro_a <- shapiro.test(mtcars_shapiro_a$mpg) |>
-  tidy() |>
-  mutate(across(where(is.numeric), ~ round(.x, 2)))
-
-bind_rows(shapiro_a, shapiro_m) |>
-  mutate(
-    transmission = c("Automatic", "Manual")
-  ) |>
-  relocate(transmission, .before =1) |>
+df_levene |> 
+  group_by(SleepDur) |> 
+  summarise(
+    tidy(shapiro.test(DailyPerf)),
+    .groups = "drop"
+  ) |> 
+  mutate(across(where(is.numeric), ~ round(.x, 2))) |> 
   kable()
 
 ```
@@ -172,25 +147,19 @@ The plot and test statistics is shown on @fig-stats.
 
 ```{r}
 #| label: fig-stats
-#| fig-cap: Comparison of `mpg` by `am`.
+#| fig-cap: Comparison of DailyPerf by SleepDur.
 #| fig-height: 3
 
-mtcars |> # call the data
-  mutate(
-    am = factor(
-      am, levels = c(0, 1),
-      labels = c("Automatic", "Manual")
-    )
-  ) |>
+df_levene |> # call the cleaned data
   ggbetweenstats(
-    x = am,
-    y = mpg,
+    x = SleepDur,
+    y = DailyPerf,
     plot.type = "box", # for boxplot
-    type = "parametric", # for student's t-test
-    var.equal = FALSE, # equal variances
-    centrality.plotting = TRUE # remove mean
+    type = "parametric", # for Welch's ANOVA
+    var.equal = FALSE, # unequal variances
+    centrality.plotting = TRUE
   ) +
   labs(caption = NULL) # remove caption
 ```
 
-Based on the plot and the *p*-value being less than 5% (*p*-value = .001), we reject the null hypothesis. There is strong evidence that the mean miles/(US) gallon is different when grouped according to transmission. Cars with manual transmission tend to have a higher mean miles/(US) gallon. Thus, manual cars are more fuel efficient compared to automatic cars.
+Based on the plot and the *p-value being greater than 5% (FWelch(4, 14.14) = 0.10, p-value = 0.98), we fail to reject the null hypothesis. There is no sufficient evidence to conclude that the mean Daily Performance is different when grouped according to Sleep Duration. Across all five sleep duration categories, the average daily performance scores remain very similar (ranging only from 6.25 to 6.71), indicating that sleep duration does not significantly affect daily performance in this sample*.

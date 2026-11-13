@@ -5,7 +5,7 @@
 <meta name="generator" content="quarto-1.9.38">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 <meta name="author" content="Freda B. Langpawan">
-<meta name="dcterms.date" content="2026-11-12">
+<meta name="dcterms.date" content="2026-11-13">
 <title>Two Variables: Qualitative</title>
 <style>
 
@@ -2369,7 +2369,7 @@ window.Quarto = {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 12, 2026</p>
+      <p class="date">November 13, 2026</p>
     </div>
   </div>
   
@@ -2955,7 +2955,7 @@ Bedtime
 <ul>
 <li><p><span class="math inline">\(H_0:p_{Diff Concentration}-p_{Bed}=0\)</span>; bedtime is not associated with concentration difficulty.</p></li>
 <li><p><span class="math inline">\(H_a:p_{Diff Concentration}-p_{Bed}\ne0\)</span>; bedtime is associated with concentration difficulty.</p></li>
-<li><p>Significance level, <span class="math inline">\(\alpha=5\%\,\text{or p-value}\,\le\.05\)</span>.</p></li>
+<li><p>Significance level, <span class="math inline">\(\alpha=5\%\,\text{or p-value}\,\le.05\)</span>.</p></li>
 <li><p><strong>Pearson’s</strong> <span class="math inline">\(\chi^2\)</span>-test of independence</p></li>
 <li><p>Independence.</p></li>
 <li><p>Expected counts: The expected count shows the estimated number of respondents in each category if there is no significant relationship between the two variables. Both groups (Yes and No) have the same expected counts: 2, 19.5, 8, and 0.5, respectively. This suggests an equal distribution under the assumption that the variables are independent. <span class="math inline">\(\ge5\)</span> (see <a href="#tbl-expected" class="quarto-xref">Table 3</a>).</p></li>
@@ -2972,7 +2972,7 @@ Bedtime
 <span></span>
 <span><span class="co"># View expected counts</span></span>
 <span><span class="va">expected</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/tibble/man/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://tibble.tidyverse.org/reference/as_tibble.html">as_tibble</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html">mutate</a></span><span class="op">(</span></span>
 <span>    <span class="st">&quot; &quot;</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">&quot;No&quot;</span>, <span class="st">&quot;Yes&quot;</span><span class="op">)</span></span>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span></span>

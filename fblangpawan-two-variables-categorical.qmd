@@ -63,7 +63,7 @@ The data consist of two qualitative variables.
 
 - `Diff Concentration` yes, no.
 
-This data set helps us understand whether students'usual bedtime is associated iwth their ability in concentrating in class.
+This data set helps us understand whether students'usual bedtime is associated with their ability in concentrating in class.
 
 The first 6 rows of the data set are shown in @tbl-concentration.
 
@@ -111,7 +111,7 @@ Does usual bedtime have a significant relationship with students' concentration 
 
 - $H_a:p_{Diff Concentration}-p_{Bed}\ne0$; bedtime is associated with concentration difficulty.
 
-- Significance level, $\alpha=5\%\,\text{or p-value}\,\le\.05$.
+- Significance level, $\alpha=5\%\,\text{or p-value}\,\le.05$.
 
 - **Pearson's** $\chi^2$-test of independence
 
